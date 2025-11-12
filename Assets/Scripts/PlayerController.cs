@@ -74,6 +74,7 @@ public class PlayerController : MonoBehaviour
 
             _characterController.Move(moveDirection * _playerSpeed * Time.deltaTime);
         }
+
         
         //_animator.SetFloat("Horizontal", _moveValue.x);
         //_animator.SetFloat("Vertical", _moveValue.y);
