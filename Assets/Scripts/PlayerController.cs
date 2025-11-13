@@ -18,14 +18,15 @@ public class PlayerController : MonoBehaviour
     //Camara
     [SerializeField] private Transform _mainCamera;
     private float _turnSmoothVelocity;
-    private float _smoothTime = 0.2f;
+    private float _smoothTime = 0.1f;
 
     //Parámetros
     //<---------------------------------------------------------------------->
     private float _playerSpeed = 10;
 //--> Jump
     private float _timeToMaxHeight;
-    private float _playerJump = 2;
+    private float _playerJump = 5;
+    
 //--> Dash
     public float _dashSpeed = 20;
     public float _dashTime;
@@ -35,6 +36,7 @@ public class PlayerController : MonoBehaviour
 
     //Gravedad
     private float _gravity = -9.81f;
+    
     [SerializeField] private Vector3 _playerGravity;
 
     //GroundSensor
@@ -54,7 +56,10 @@ public class PlayerController : MonoBehaviour
     
     void Start()
     {
-        
+        //esto s¡no sabemos si arregla algo
+        /*_gravity = -80;
+        float timeToApex = -(_playerJump / _gravity);
+        _timeToMaxHeight = timeToApex;*/
     }
 
     void Update()
@@ -99,6 +104,8 @@ public class PlayerController : MonoBehaviour
 
             _characterController.Move(moveDirection * _playerSpeed * Time.deltaTime);
         }
+        //*Hacer que al estar quieto el smooth time sea casi instantaneo, es decir, cuando estás quieto el personaje cambia de orientación casi al instante, al estar en movimiento el factor de smooth que se note más
+        
         //_animator.SetFloat("Horizontal", _moveValue.x);
         //_animator.SetFloat("Vertical", _moveValue.y);
     }
@@ -124,8 +131,12 @@ public class PlayerController : MonoBehaviour
     {
         //Debug.Log("salto");
         //_animator.SetBool("isJumping", true);
+        
+        
         float timeToApex = -(_playerJump / _gravity);
         _timeToMaxHeight = timeToApex;
+        
+
         //Debug.Log(timeToApex); 
 
         _playerGravity.y = Mathf.Sqrt(_playerJump * -2 * _gravity);
@@ -143,8 +154,7 @@ public class PlayerController : MonoBehaviour
     IEnumerator TimeToApex()
     {
         yield return new WaitForSeconds(_timeToMaxHeight);
-        _gravity = -80;
-
+        //_gravity = -80;
     }
 
     void Gravity()
