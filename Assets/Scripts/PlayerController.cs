@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
@@ -11,6 +13,7 @@ public class PlayerController : MonoBehaviour
     private InputAction _moveAction;
     public Vector2 _moveValue;
     private InputAction _jumpAction;
+    private InputAction _dashAction;
 
     //Camara
     [SerializeField] private Transform _mainCamera;
@@ -18,12 +21,21 @@ public class PlayerController : MonoBehaviour
     private float _smoothTime = 0.2f;
 
     //Parámetros
-    private float _playerSpeed = 8;
+    //<---------------------------------------------------------------------->
+    private float _playerSpeed = 10;
+//--> Jump
+    private float _timeToMaxHeight;
     private float _playerJump = 2;
+//--> Dash
+    public float _dashSpeed = 20;
+    public float _dashTime;
+    private Vector3 _lastMoveDirection;
+    private bool isDashing = false;
+    //<---------------------------------------------------------------------->
 
     //Gravedad
-    private float _gravity = 2 * -9.81f;
-    private Vector3 _playerGravity;
+    private float _gravity = -9.81f;
+    [SerializeField] private Vector3 _playerGravity;
 
     //GroundSensor
     [SerializeField] private Transform _sensor;
@@ -37,6 +49,7 @@ public class PlayerController : MonoBehaviour
 
         _moveAction = InputSystem.actions["Move"];
         _jumpAction = InputSystem.actions["Jump"];
+        _dashAction = InputSystem.actions["Sprint"];
     }
     
     void Start()
@@ -48,7 +61,11 @@ public class PlayerController : MonoBehaviour
     {
         _moveValue = _moveAction.ReadValue<Vector2>();
         
-        Movement();
+        if(isDashing == false)
+        {
+            Movement();
+        }
+        
 
         if (_jumpAction.WasPressedThisFrame() && IsGrounded())
         {
@@ -56,6 +73,13 @@ public class PlayerController : MonoBehaviour
         }
 
         Gravity();
+
+        if(_dashAction.WasPressedThisFrame())
+        {
+            StartCoroutine(Dash());
+        }
+
+
     }
 
     void Movement()
@@ -71,13 +95,28 @@ public class PlayerController : MonoBehaviour
             transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
 
             Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
+            _lastMoveDirection = direction;
 
             _characterController.Move(moveDirection * _playerSpeed * Time.deltaTime);
         }
-
-        
         //_animator.SetFloat("Horizontal", _moveValue.x);
         //_animator.SetFloat("Vertical", _moveValue.y);
+    }
+
+    IEnumerator Dash()
+    {
+        isDashing = true;
+        float startTime = Time.time;
+
+        while (Time.time < startTime + _dashTime)
+        {
+            //Temporalmente para sacar el movimiento
+            //Vector3 direction = new Vector3(_moveValue.x, 0, _moveValue.y);
+            _characterController.Move(_lastMoveDirection * _dashSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        isDashing = false;
     }
     
 
@@ -85,10 +124,27 @@ public class PlayerController : MonoBehaviour
     {
         //Debug.Log("salto");
         //_animator.SetBool("isJumping", true);
+        float timeToApex = -(_playerJump / _gravity);
+        _timeToMaxHeight = timeToApex;
+        //Debug.Log(timeToApex); 
 
         _playerGravity.y = Mathf.Sqrt(_playerJump * -2 * _gravity);
 
         _characterController.Move(_playerGravity * Time.deltaTime);
+
+        StartCoroutine(TimeToApex());
+
+        /*if(_playerGravity.y == 0)
+        {
+            //_playerGravity.y = 
+        }*/
+    }
+
+    IEnumerator TimeToApex()
+    {
+        yield return new WaitForSeconds(_timeToMaxHeight);
+        _gravity = -80;
+
     }
 
     void Gravity()
@@ -117,18 +173,4 @@ public class PlayerController : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(_sensor.position, _sensorRadius);
     }
-
-    /*bool DeathZoneDetection()
-    {
-        return Physics.CheckSphere(_deathZone.position, _deathZoneRadius, _deathLayer);
-    }*/
-
-    /*void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.layer == 6)
-        {
-  
-            Death();
-        }
-    }*/
 }
