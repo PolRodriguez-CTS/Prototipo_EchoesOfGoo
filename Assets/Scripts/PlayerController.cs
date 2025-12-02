@@ -28,10 +28,10 @@ public class PlayerController : MonoBehaviour
     private float _playerJump = 5;
     
 //--> Dash
-    public float _dashSpeed = 20;
-    public float _dashTime;
-    private Vector3 _lastMoveDirection;
-    private bool isDashing = false;
+    public float _dashSpeed = 20; //fuerza del dash
+    public float _dashTime; //almacenar tiempo, lo que durará el dash
+    private Vector3 _lastMoveDirection; //dirección en la que miras antes del dash
+    private bool isDashing = false; //booleana de control para la acción del dash
     //<---------------------------------------------------------------------->
 
     //Gravedad
@@ -110,10 +110,20 @@ public class PlayerController : MonoBehaviour
         //_animator.SetFloat("Vertical", _moveValue.y);
     }
 
+
     IEnumerator Dash()
     {
         isDashing = true;
-        float startTime = Time.time;
+        float i = 0;
+        i ++;
+
+        for (int i = 0; i < i + _dashTime; i++)
+        {
+            _characterController.Move(_lastMoveDirection * _dashSpeed * Time.deltaTime);
+            yield return null;
+        }
+        
+        /*float startTime = Time.time;
 
         while (Time.time < startTime + _dashTime)
         {
@@ -121,7 +131,15 @@ public class PlayerController : MonoBehaviour
             //Vector3 direction = new Vector3(_moveValue.x, 0, _moveValue.y);
             _characterController.Move(_lastMoveDirection * _dashSpeed * Time.deltaTime);
             yield return null;
-        }
+        }*/
+
+        /*while (i < i + _dashTime)
+        {
+            //Temporalmente para sacar el movimiento
+            //Vector3 direction = new Vector3(_moveValue.x, 0, _moveValue.y);
+            _characterController.Move(_lastMoveDirection * _dashSpeed * Time.deltaTime);
+            yield return null;
+        }*/
 
         isDashing = false;
     }

@@ -1717,8 +1717,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveValue: {x: 0, y: 0}
   _mainCamera: {fileID: 963194228}
-  _dashSpeed: 20
-  _dashTime: 0
+  _dashSpeed: 30
+  _dashTime: 0.1
   _playerGravity: {x: 0, y: 0, z: 0}
   _sensor: {fileID: 1374619897}
   _groundLayer:
