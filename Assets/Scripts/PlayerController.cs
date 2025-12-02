@@ -1,203 +1,210 @@
-using System.Collections;
+using System;
+//using System.Numerics;
+using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using Unity.VisualScripting;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-   //Componentes
-    private CharacterController _characterController;
-    //private Animator _animator;
+    //Componentes
+    private CharacterController _controller;
+    private Animator _animator;
 
     //Inputs
     private InputAction _moveAction;
-    public Vector2 _moveValue;
+    private Vector2 _moveInput;
     private InputAction _jumpAction;
-    private InputAction _dashAction;
+    private InputAction _lookAction;
+    private Vector2 _lookInput;
 
-    //Camara
-    [SerializeField] private Transform _mainCamera;
+    [SerializeField] private float _movementSpeed = 5;
+    [SerializeField] private float _jumpHeight = 2;
+    [SerializeField] private float _smoothTime = 0.2f;
     private float _turnSmoothVelocity;
-    private float _smoothTime = 0.1f;
 
-    //Parámetros
-    //<---------------------------------------------------------------------->
-    private float _playerSpeed = 10;
-//--> Jump
-    private float _timeToMaxHeight;
-    private float _playerJump = 5;
-    
-//--> Dash
-    public float _dashSpeed = 20; //fuerza del dash
-    public float _dashTime; //almacenar tiempo, lo que durará el dash
-    private Vector3 _lastMoveDirection; //dirección en la que miras antes del dash
-    private bool isDashing = false; //booleana de control para la acción del dash
-    //<---------------------------------------------------------------------->
 
     //Gravedad
-    private float _gravity = -9.81f;
-    
+    [SerializeField] private float _gravity = -10f;
     [SerializeField] private Vector3 _playerGravity;
 
-    //GroundSensor
+    //Ground Sensor
     [SerializeField] private Transform _sensor;
     [SerializeField] private LayerMask _groundLayer;
-    [SerializeField] private float _sensorRadius;
+    [SerializeField] float _sensorRadius;
+
+    private Transform _mainCamera;
+
+    //Libertinaje puro y duro
+    public float _speedChangeRate = 10;
+    public float speed;
+    public float _animationSpeed;
+    public bool isSprinting = false;
+    public float _sprintSpeed = 8;
+    public float targetAngle;
+
+    public float jumpTimeOut = 0.5f;
+    public float fallTImeOut = 0.15f;
+    float _jumpTimeOutDelta;
+    float _fallTimeOutDelta;
+
 
     void Awake()
     {
-        _characterController = GetComponent<CharacterController>();
-        //_animator = GetComponentInChildren<Animator>();
+        _controller = GetComponent<CharacterController>();
+        _animator = GetComponentInChildren<Animator>();
 
         _moveAction = InputSystem.actions["Move"];
         _jumpAction = InputSystem.actions["Jump"];
-        _dashAction = InputSystem.actions["Sprint"];
+        _lookAction = InputSystem.actions["Look"];
+
+        _mainCamera = Camera.main.transform;
     }
-    
+
     void Start()
     {
-        //esto s¡no sabemos si arregla algo
-        /*_gravity = -80;
-        float timeToApex = -(_playerJump / _gravity);
-        _timeToMaxHeight = timeToApex;*/
+        _jumpTimeOutDelta = jumpTimeOut;
+        _fallTimeOutDelta = fallTImeOut;
     }
 
     void Update()
     {
-        _moveValue = _moveAction.ReadValue<Vector2>();
-        
-        if(isDashing == false)
-        {
-            Movement();
-        }
-        
+        _moveInput = _moveAction.ReadValue<Vector2>();
+        _lookInput = _lookAction.ReadValue<Vector2>();
+
+        Gravity();
+
+        Movement();
 
         if (_jumpAction.WasPressedThisFrame() && IsGrounded())
         {
             Jump();
         }
-
-        Gravity();
-
-        if(_dashAction.WasPressedThisFrame())
-        {
-            StartCoroutine(Dash());
-        }
-
-
     }
 
     void Movement()
     {
-        Vector3 direction = new Vector3(_moveValue.x, 0, _moveValue.y);
-        /*_animator.SetFloat("Horizontal", _moveValue.x);
-        _animator.SetFloat("Vertical", direction.magnitude);*/
+        Vector3 direction = new Vector3(_moveInput.x, 0, _moveInput.y);
+        //--------------------------------------------------------------
+        //float targetSpeed;
 
+        /*if (direction == Vector3.zero)
+        {
+            speed = 0;
+            _animationSpeed = 0;
+            _animator.SetFloat("Speed", 0);
+
+            _controller.Move(_playerGravity * Time.deltaTime);
+            return;
+        }*/
+
+        /*if(isSprinting)
+        {
+            targetSpeed = _sprintSpeed;
+        }
+        else
+        {
+            targetSpeed = _movementSpeed;
+        }*/
+        //--------------------------------------------------------------
+
+        float targetSpeed = _movementSpeed;
+
+        if(direction == Vector3.zero)
+        {
+            targetSpeed = 0;
+        }
+
+        float currentSpeed = new Vector3(_controller.velocity.x, 0, _controller.velocity.z).magnitude;
+
+        float speedOffset = 0.1f;
+
+        if(currentSpeed < targetSpeed - speedOffset || currentSpeed > targetSpeed + speedOffset)
+        {
+            speed = Mathf.Lerp(currentSpeed, targetSpeed * direction.magnitude, _speedChangeRate * Time.deltaTime);
+
+            speed = Mathf.Round(speed * 1000f) / 1000f;
+        }
+        else
+        {
+            speed = targetSpeed;
+        }
+
+        _animationSpeed = Mathf.Lerp(_animationSpeed, targetSpeed, _speedChangeRate * Time.deltaTime);
+
+        if(_animationSpeed < 0.05f)
+        {
+            _animationSpeed = 0;
+        }
+
+        //_animator.SetFloat("Speed", _animationSpeed);
+        
         if (direction != Vector3.zero)
         {
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + _mainCamera.eulerAngles.y;
+            targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + _mainCamera.eulerAngles.y;
             float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _smoothTime);
+
             transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
-
-            Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
-            _lastMoveDirection = direction;
-
-            _characterController.Move(moveDirection * _playerSpeed * Time.deltaTime);
         }
-        //*Hacer que al estar quieto el smooth time sea casi instantaneo, es decir, cuando estás quieto el personaje cambia de orientación casi al instante, al estar en movimiento el factor de smooth que se note más
-        
-        //_animator.SetFloat("Horizontal", _moveValue.x);
-        //_animator.SetFloat("Vertical", _moveValue.y);
+
+        Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
+
+        _controller.Move(moveDirection.normalized * (speed * Time.deltaTime) + _playerGravity * Time.deltaTime);
     }
-
-
-    IEnumerator Dash()
-    {
-        isDashing = true;
-
-        for (int i = 0; i < i + _dashTime; i++)
-        {
-            _characterController.Move(_lastMoveDirection * _dashSpeed * Time.deltaTime);
-            yield return null;
-            /*if(i => _dashTime)
-            {
-                isDashing = false;
-                Debug.Log("Ha acabado el dash");
-            }*/
-        }
-        
-        /*float startTime = Time.time;
-
-        while (Time.time < startTime + _dashTime)
-        {
-            //Temporalmente para sacar el movimiento
-            //Vector3 direction = new Vector3(_moveValue.x, 0, _moveValue.y);
-            _characterController.Move(_lastMoveDirection * _dashSpeed * Time.deltaTime);
-            yield return null;
-        }*/
-
-        /*while (i < i + _dashTime)
-        {
-            //Temporalmente para sacar el movimiento
-            //Vector3 direction = new Vector3(_moveValue.x, 0, _moveValue.y);
-            _characterController.Move(_lastMoveDirection * _dashSpeed * Time.deltaTime);
-            yield return null;
-        }*/
-
-        isDashing = false;
-    }
-    
 
     void Jump()
     {
-        //Debug.Log("salto");
-        //_animator.SetBool("isJumping", true);
-        
-        
-        float timeToApex = -(_playerJump / _gravity);
-        _timeToMaxHeight = timeToApex;
-        
-
-        //Debug.Log(timeToApex); 
-
-        _playerGravity.y = Mathf.Sqrt(_playerJump * -2 * _gravity);
-
-        _characterController.Move(_playerGravity * Time.deltaTime);
-
-        StartCoroutine(TimeToApex());
-
-        /*if(_playerGravity.y == 0)
+        if(_jumpTimeOutDelta <= 0)
         {
-            //_playerGravity.y = 
-        }*/
-    }
+            //_animator.SetBool("Jump", true);
 
-    IEnumerator TimeToApex()
-    {
-        yield return new WaitForSeconds(_timeToMaxHeight);
-        //_gravity = -80;
+            _playerGravity.y = Mathf.Sqrt(_jumpHeight * -2 * _gravity);
+        }
     }
 
     void Gravity()
     {
-        if (!IsGrounded())
+        //_animator.SetBool("Grounded", IsGrounded());
+        if(IsGrounded())
         {
+            _fallTimeOutDelta = fallTImeOut;
+
+            /*_animator.SetBool("Jump", false);
+            _animator.SetBool("Fall", false);*/
+
+            if(_playerGravity.y < 0)
+            {
+                _playerGravity.y = -2;
+            }
+
+            if(_jumpTimeOutDelta >= 0)
+            {
+                _jumpTimeOutDelta -= Time.deltaTime;
+            }
+        }
+        
+        else
+        {
+            _jumpTimeOutDelta = jumpTimeOut;
+
+            if(_fallTimeOutDelta >= 0)
+            {
+                _fallTimeOutDelta -= Time.deltaTime;
+            }
+            else
+            {
+                //_animator.SetBool("Fall", true);
+            }
+
             _playerGravity.y += _gravity * Time.deltaTime;
         }
-
-        else if (IsGrounded() && _playerGravity.y < 0)
-        {
-            _playerGravity.y = _gravity;
-            //_animator.SetBool("isJumping", false);
-        }
-
-        _characterController.Move(_playerGravity * Time.deltaTime);
     }
 
     bool IsGrounded()
     {
         return Physics.CheckSphere(_sensor.position, _sensorRadius, _groundLayer);
     }
+
 
     void OnDrawGizmos()
     {
