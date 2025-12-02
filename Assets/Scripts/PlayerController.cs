@@ -114,13 +114,16 @@ public class PlayerController : MonoBehaviour
     IEnumerator Dash()
     {
         isDashing = true;
-        float i = 0;
-        i ++;
 
         for (int i = 0; i < i + _dashTime; i++)
         {
             _characterController.Move(_lastMoveDirection * _dashSpeed * Time.deltaTime);
             yield return null;
+            /*if(i => _dashTime)
+            {
+                isDashing = false;
+                Debug.Log("Ha acabado el dash");
+            }*/
         }
         
         /*float startTime = Time.time;
