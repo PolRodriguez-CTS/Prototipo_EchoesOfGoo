@@ -90,7 +90,7 @@ public class PlayerController : MonoBehaviour
             Jump();
         }
 
-        if(_dashAction.WasPressedThisFrame())
+        if(_dashAction.WasPressedThisFrame() && _moveInput != Vector2.zero)
         {
             StartCoroutine(Dash());
         }
@@ -102,6 +102,8 @@ public class PlayerController : MonoBehaviour
         Vector3 direction = new Vector3(_moveInput.x, 0, _moveInput.y);
 
         float targetSpeed = _movementSpeed;
+
+        float inputDir = direction.magnitude;
 
         if(direction == Vector3.zero)
         {
@@ -147,8 +149,13 @@ public class PlayerController : MonoBehaviour
         }
 
         Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
+        if (inputDir > 0.1f)
+        {
+            _lastMoveDirection = moveDirection.normalized;
+        }
 
-        _lastMoveDirection = direction;
+        
+        Debug.Log(_lastMoveDirection);
         _controller.Move(moveDirection.normalized * (speed * Time.deltaTime) + _playerGravity * Time.deltaTime);
     }
 
