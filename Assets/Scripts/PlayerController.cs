@@ -100,28 +100,6 @@ public class PlayerController : MonoBehaviour
     void Movement()
     {
         Vector3 direction = new Vector3(_moveInput.x, 0, _moveInput.y);
-        //--------------------------------------------------------------
-        //float targetSpeed;
-
-        /*if (direction == Vector3.zero)
-        {
-            speed = 0;
-            _animationSpeed = 0;
-            _animator.SetFloat("Speed", 0);
-
-            _controller.Move(_playerGravity * Time.deltaTime);
-            return;
-        }*/
-
-        /*if(isSprinting)
-        {
-            targetSpeed = _sprintSpeed;
-        }
-        else
-        {
-            targetSpeed = _movementSpeed;
-        }*/
-        //--------------------------------------------------------------
 
         float targetSpeed = _movementSpeed;
 
@@ -153,13 +131,19 @@ public class PlayerController : MonoBehaviour
         }
 
         //_animator.SetFloat("Speed", _animationSpeed);
-        //if(targetSpeed)
+
         if (direction != Vector3.zero)
         {
             targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + _mainCamera.eulerAngles.y;
+            
             float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _smoothTime);
-
             transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
+        }
+        else
+        {
+            _smoothTime = 0.05f;
+            float quickSmoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _smoothTime);
+            transform.rotation = Quaternion.Euler(0, quickSmoothAngle, 0);
         }
 
         Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
