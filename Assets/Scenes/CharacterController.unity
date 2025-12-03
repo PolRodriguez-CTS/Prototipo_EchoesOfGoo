@@ -1715,16 +1715,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2c875bdc17922146a8ca0fb15a5b64c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveValue: {x: 0, y: 0}
-  _mainCamera: {fileID: 963194228}
-  _dashSpeed: 35
-  _dashTime: 0.25
+  _movementSpeed: 5
+  _jumpHeight: 2
+  _smoothTime: 0.2
+  _gravity: -10
   _playerGravity: {x: 0, y: 0, z: 0}
   _sensor: {fileID: 1374619897}
   _groundLayer:
     serializedVersion: 2
     m_Bits: 8
   _sensorRadius: 0.5
+  _dashSpeed: 20
+  _dashTime: 0.15
+  _speedChangeRate: 10
+  speed: 0
+  _animationSpeed: 0
+  isSprinting: 0
+  _sprintSpeed: 8
+  targetAngle: 0
+  jumpTimeOut: 0.5
+  fallTImeOut: 0.15
 --- !u!1 &1795431884
 GameObject:
   m_ObjectHideFlags: 0

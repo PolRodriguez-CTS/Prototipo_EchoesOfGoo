@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Unity.VisualScripting;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class PlayerController : MonoBehaviour
     private InputAction _jumpAction;
     private InputAction _lookAction;
     private Vector2 _lookInput;
+    private InputAction _dashAction;
 
     [SerializeField] private float _movementSpeed = 5;
     [SerializeField] private float _jumpHeight = 2;
@@ -34,6 +36,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float _sensorRadius;
 
     private Transform _mainCamera;
+
+    //--> Dash
+    public float _dashSpeed = 30;
+    public float _dashTime = 0.25f;
+    private Vector3 _lastMoveDirection;
+    private bool isDashing = false;
 
     //Libertinaje puro y duro
     public float _speedChangeRate = 10;
@@ -57,6 +65,7 @@ public class PlayerController : MonoBehaviour
         _moveAction = InputSystem.actions["Move"];
         _jumpAction = InputSystem.actions["Jump"];
         _lookAction = InputSystem.actions["Look"];
+        _dashAction = InputSystem.actions["Sprint"];
 
         _mainCamera = Camera.main.transform;
     }
@@ -80,6 +89,12 @@ public class PlayerController : MonoBehaviour
         {
             Jump();
         }
+
+        if(_dashAction.WasPressedThisFrame())
+        {
+            StartCoroutine(Dash());
+        }
+
     }
 
     void Movement()
@@ -138,7 +153,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //_animator.SetFloat("Speed", _animationSpeed);
-        
+        //if(targetSpeed)
         if (direction != Vector3.zero)
         {
             targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + _mainCamera.eulerAngles.y;
@@ -149,6 +164,7 @@ public class PlayerController : MonoBehaviour
 
         Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
 
+        _lastMoveDirection = direction;
         _controller.Move(moveDirection.normalized * (speed * Time.deltaTime) + _playerGravity * Time.deltaTime);
     }
 
@@ -198,6 +214,23 @@ public class PlayerController : MonoBehaviour
 
             _playerGravity.y += _gravity * Time.deltaTime;
         }
+    }
+
+    IEnumerator Dash()
+    {
+        isDashing = true;
+
+        float timer = 0;
+
+        while(timer < _dashTime)
+        {
+            _controller.Move(_lastMoveDirection.normalized * _dashSpeed * Time.deltaTime);
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        isDashing = false;
     }
 
     bool IsGrounded()
