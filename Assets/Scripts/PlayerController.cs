@@ -143,8 +143,8 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            _smoothTime = 0.05f;
-            float quickSmoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _smoothTime);
+            float _smoothTimeQuick = 0.05f;
+            float quickSmoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _smoothTimeQuick);
             transform.rotation = Quaternion.Euler(0, quickSmoothAngle, 0);
         }
 
@@ -154,8 +154,6 @@ public class PlayerController : MonoBehaviour
             _lastMoveDirection = moveDirection.normalized;
         }
 
-        
-        Debug.Log(_lastMoveDirection);
         _controller.Move(moveDirection.normalized * (speed * Time.deltaTime) + _playerGravity * Time.deltaTime);
     }
 
