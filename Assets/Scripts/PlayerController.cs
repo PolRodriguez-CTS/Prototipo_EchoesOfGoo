@@ -25,9 +25,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _smoothTime = 0.2f;
     private float _turnSmoothVelocity;
 
-
     //Gravedad
-    [SerializeField] private float _gravity = -10f;
+    [SerializeField] private float _gravity = -12f;
     [SerializeField] private Vector3 _playerGravity;
 
     //Ground Sensor
@@ -99,40 +98,13 @@ public class PlayerController : MonoBehaviour
 
     void Movement()
     {
+        //Direccion, pilla input en X e Y, en movimiento del personaje se traduce al movimiento en X y Z, ejes horizontales
         Vector3 direction = new Vector3(_moveInput.x, 0, _moveInput.y);
 
+        //Velocidad
         float targetSpeed = _movementSpeed;
 
         float inputDir = direction.magnitude;
-
-        if(direction == Vector3.zero)
-        {
-            targetSpeed = 0;
-        }
-
-        float currentSpeed = new Vector3(_controller.velocity.x, 0, _controller.velocity.z).magnitude;
-
-        float speedOffset = 0.1f;
-
-        if(currentSpeed < targetSpeed - speedOffset || currentSpeed > targetSpeed + speedOffset)
-        {
-            speed = Mathf.Lerp(currentSpeed, targetSpeed * direction.magnitude, _speedChangeRate * Time.deltaTime);
-
-            speed = Mathf.Round(speed * 1000f) / 1000f;
-        }
-        else
-        {
-            speed = targetSpeed;
-        }
-
-        _animationSpeed = Mathf.Lerp(_animationSpeed, targetSpeed, _speedChangeRate * Time.deltaTime);
-
-        if(_animationSpeed < 0.05f)
-        {
-            _animationSpeed = 0;
-        }
-
-        //_animator.SetFloat("Speed", _animationSpeed);
 
         if (direction != Vector3.zero)
         {
@@ -154,29 +126,22 @@ public class PlayerController : MonoBehaviour
             _lastMoveDirection = moveDirection.normalized;
         }
 
-        _controller.Move(moveDirection.normalized * (speed * Time.deltaTime) + _playerGravity * Time.deltaTime);
+        _controller.Move(moveDirection.normalized * _movementSpeed * Time.deltaTime + _playerGravity * Time.deltaTime);
     }
 
     void Jump()
     {
         if(_jumpTimeOutDelta <= 0)
         {
-            //_animator.SetBool("Jump", true);
-
             _playerGravity.y = Mathf.Sqrt(_jumpHeight * -2 * _gravity);
         }
     }
 
     void Gravity()
     {
-        //_animator.SetBool("Grounded", IsGrounded());
         if(IsGrounded())
         {
             _fallTimeOutDelta = fallTImeOut;
-
-            /*_animator.SetBool("Jump", false);
-            _animator.SetBool("Fall", false);*/
-
             if(_playerGravity.y < 0)
             {
                 _playerGravity.y = -2;
