@@ -1909,20 +1909,15 @@ MonoBehaviour:
   _movementSpeed: 5
   _jumpHeight: 2
   _smoothTime: 0.2
-  _gravity: -10
+  _gravity: -12
   _playerGravity: {x: 0, y: 0, z: 0}
   _sensor: {fileID: 1374619897}
   _groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  _sensorRadius: 0.5
-  _dashSpeed: 20
-  _dashTime: 0.15
-  _speedChangeRate: 10
-  speed: 0
-  _animationSpeed: 0
-  isSprinting: 0
-  _sprintSpeed: 8
+  _sensorRadius: 0
+  _dashSpeed: 30
+  _dashTime: 0.25
   targetAngle: 0
   jumpTimeOut: 0.5
   fallTImeOut: 0.15

@@ -1,13 +1,8 @@
-using System;
-//using System.Numerics;
-using Unity.Mathematics;
-using UnityEngine;
-using Unity.VisualScripting;
-using UnityEngine.InputSystem;
 using System.Collections;
-using UnityEditor.Experimental.GraphView;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class PlayerController : MonoBehaviour
+public class Player2 : MonoBehaviour
 {
     //Componentes
     private CharacterController _controller;
@@ -17,19 +12,23 @@ public class PlayerController : MonoBehaviour
     private InputAction _moveAction;
     private Vector2 _moveInput;
     private InputAction _jumpAction;
-    //private InputAction _lookAction;
-    //private Vector2 _lookInput;
+    private InputAction _lookAction;
+    private Vector2 _lookInput;
     private InputAction _dashAction;
-
-    private InputAction _clickAction;
 
     [SerializeField] private float _movementSpeed = 5;
     [SerializeField] private float _jumpHeight = 2;
     [SerializeField] private float _smoothTime = 0.2f;
     private float _turnSmoothVelocity;
 
+    //Dash
+    public float _dashSpeed = 30;
+    public float _dashTime = 0.25f;
+    private Vector3 _lastMoveDirection;
+    private bool isDashing = false;
+
     //Gravedad
-    [SerializeField] private float _gravity = -12f;
+    [SerializeField] private float _gravity = -10f;
     [SerializeField] private Vector3 _playerGravity;
 
     //Ground Sensor
@@ -39,13 +38,12 @@ public class PlayerController : MonoBehaviour
 
     private Transform _mainCamera;
 
-    //--> Dash
-    public float _dashSpeed = 30;
-    public float _dashTime = 0.25f;
-    private Vector3 _lastMoveDirection;
-    private bool isDashing = false;
-
-
+    //Libertinaje puro y duro
+    public float _speedChangeRate = 10;
+    public float speed;
+    public float _animationSpeed;
+    public bool isSprinting = false;
+    public float _sprintSpeed = 8;
     public float targetAngle;
 
     public float jumpTimeOut = 0.5f;
@@ -61,12 +59,8 @@ public class PlayerController : MonoBehaviour
 
         _moveAction = InputSystem.actions["Move"];
         _jumpAction = InputSystem.actions["Jump"];
-        //_lookAction = InputSystem.actions["Look"];
+        _lookAction = InputSystem.actions["Look"];
         _dashAction = InputSystem.actions["Sprint"];
-
-        //--
-        _clickAction = InputSystem.actions["Attack"];
-        //--
 
         _mainCamera = Camera.main.transform;
     }
@@ -80,7 +74,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         _moveInput = _moveAction.ReadValue<Vector2>();
-        //_lookInput = _lookAction.ReadValue<Vector2>();
+        _lookInput = _lookAction.ReadValue<Vector2>();
 
         Gravity();
 
@@ -95,46 +89,93 @@ public class PlayerController : MonoBehaviour
         {
             StartCoroutine(Dash());
         }
-
-        //Pa cambiar
-        /*
-        if(_clickAction.WasPressedThisFrame())
-        {
-            InputManager.Instance.ChangeInputMap(InputManager.Instance.menuActionMap);
-        }
-        */
     }
 
     void Movement()
     {
         Vector3 direction = new Vector3(_moveInput.x, 0, _moveInput.y);
-        
 
-        if(direction != Vector3.zero)
+        float targetSpeed = _movementSpeed;
+
+        if(direction == Vector3.zero)
         {
-            targetAngle = Mathf.Atan2(direction.x, direction.z)*Mathf.Rad2Deg + _mainCamera.eulerAngles.y;
+            targetSpeed = 0;
+        }
+
+        float currentSpeed = new Vector3(_controller.velocity.x, 0, _controller.velocity.z).magnitude;
+
+        float speedOffset = 0.1f;
+
+        if(currentSpeed < targetSpeed - speedOffset || currentSpeed > targetSpeed + speedOffset)
+        {
+            speed = Mathf.Lerp(currentSpeed, targetSpeed * direction.magnitude, _speedChangeRate * Time.deltaTime);
+
+            speed = Mathf.Round(speed * 1000f) / 1000f;
+        }
+        else
+        {
+            speed = targetSpeed;
+        }
+
+        _animationSpeed = Mathf.Lerp(_animationSpeed, targetSpeed, _speedChangeRate * Time.deltaTime);
+
+        if(_animationSpeed < 0.05f)
+        {
+            _animationSpeed = 0;
+        }
+
+        //_animator.SetFloat("Speed", _animationSpeed);
+        
+        if (direction != Vector3.zero)
+        {
+            targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + _mainCamera.eulerAngles.y;
             float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _smoothTime);
 
             transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
         }
-        Vector3 characterMovement = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
-        
-        _controller.Move(direction * _movementSpeed * Time.deltaTime);
+
+        Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
+
+        _controller.Move(moveDirection.normalized * (speed * Time.deltaTime) + _playerGravity * Time.deltaTime);
+    }
+
+    IEnumerator Dash()
+    {
+        isDashing = true;
+
+        float timer = 0;
+
+        while(timer < _dashTime)
+        {
+            _controller.Move(_lastMoveDirection.normalized * _dashSpeed * Time.deltaTime);
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        isDashing = false;
     }
 
     void Jump()
     {
         if(_jumpTimeOutDelta <= 0)
         {
+            //_animator.SetBool("Jump", true);
+
             _playerGravity.y = Mathf.Sqrt(_jumpHeight * -2 * _gravity);
         }
     }
 
     void Gravity()
     {
+        //_animator.SetBool("Grounded", IsGrounded());
         if(IsGrounded())
         {
             _fallTimeOutDelta = fallTImeOut;
+
+            //_animator.SetBool("Jump", false);
+            //_animator.SetBool("Fall", false);
+
             if(_playerGravity.y < 0)
             {
                 _playerGravity.y = -2;
@@ -161,23 +202,6 @@ public class PlayerController : MonoBehaviour
 
             _playerGravity.y += _gravity * Time.deltaTime;
         }
-    }
-
-    IEnumerator Dash()
-    {
-        isDashing = true;
-
-        float timer = 0;
-
-        while(timer < _dashTime)
-        {
-            _controller.Move(_lastMoveDirection.normalized * _dashSpeed * Time.deltaTime);
-
-            timer += Time.deltaTime;
-            yield return null;
-        }
-
-        isDashing = false;
     }
 
     bool IsGrounded()
