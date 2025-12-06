@@ -3,45 +3,6 @@ using UnityEngine.InputSystem;
 
 public class Fix : MonoBehaviour
 {
-    private CharacterController _characterController;
-
-//--> Inputs
-    private InputAction _moveAction;
-    private Vector2 _moveInput;
-    private InputAction _jumpAction;
-    private InputAction _lookAction;
-    private Vector2 _lookInput;
-    private InputAction _dashAction;
-
-//--> Cosas movimiento
-    private float _playerSpeed = 5;
-
-
-    void Awake()
-    {
-//--> Acceder a los Inputs
-        _characterController = GetComponent<CharacterController>();
-//--> Acceder a los Inputs
-        _moveAction = InputSystem.actions["Move"];
-        _jumpAction = InputSystem.actions["Jump"];
-        _lookAction = InputSystem.actions["Look"];
-        _dashAction = InputSystem.actions["Dash"];
-    }
-
-    void Start(){}
-
-    void Update()
-    {
-//--> Lectura de Inputs
-        _moveInput = _moveAction.ReadValue<Vector2>();
-        _lookInput = _lookAction.ReadValue<Vector2>();
-    }
-
-    void Movement()
-    {
-
-    }
-
 //------------------------------------------------------------
 /*
 Explicación para retrasados (principalmente para el que escribió este código) del script de movimiento
@@ -86,10 +47,19 @@ targetAngle = 0° + 90° = 90°
 
 }))))
 
+volviendo al código:
 
+después de tener el ángulo entre direction.x y direction.y, queremos que el ángulo actual (rotación del jugador) cambie gradualmente al targetAngle (angulo entre direction.x y direction.y)
+SmoothDampAngle es una función que cambia gradualmente un valor en grados al valor deseado en un tiempo determinado (controlamos esto con una variable por ejemplo smoothTime y una velocidad de referencia para dicha interpolación)
+
+si el valor que nos da SmoothDampAngle lo almacenamos en una variable, podemos usar dicha variable para aplicar gradualmente la rotación en un quaternion
+
+La dirección de movimiento la podemos sacar con una variable que tenga la rotación por quaternion multiplicado por un vector unitario que apunte hacia delante, forward
 */
 //------------------------------------------------------------
 
+
+//--> código escrito
 
 /*
     void MovementCompleto()
