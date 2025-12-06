@@ -17,6 +17,8 @@ public class InputManager : MonoBehaviour
     public InputActionMap miniGameActionMap;
 
     public InputActionMap currentActionMap;
+
+    private InputAction _changeMap;
     
     void Awake()
     {
@@ -54,6 +56,8 @@ public class InputManager : MonoBehaviour
         playerActionMap = inputAsset.FindActionMap("Player");
         menuActionMap = inputAsset.FindActionMap("UI");
         miniGameActionMap = inputAsset.FindActionMap("MiniGame");
+
+        _changeMap = InputSystem.actions["ChangeActionMap"];
     }
 
     void Start()
@@ -64,17 +68,51 @@ public class InputManager : MonoBehaviour
         Debug.Log("Start --> el ActionMap Actual es:" + currentActionMap.name);
     }
 
+    void Update()
+    {
+        if(_changeMap.WasPressedThisFrame())
+        {
+            CambioMapeado();
+        }
+    }
+
     public void ChangeInputMap(InputActionMap newActionMap)
     {
         if(currentActionMap == newActionMap)
         {
             return;
         }
-            
+
         currentActionMap.Disable();
         currentActionMap = newActionMap;
         currentActionMap.Enable();
         
         Debug.Log(newActionMap.name);
-    }    
+    }
+
+    //Pochísimo, temporal para poder cambiar de inputs con una tecla de momento 
+    int i = 0;
+    private void CambioMapeado()
+    {
+        i++;
+        Debug.Log(i);
+        if(i > 3)
+        {
+            i = 0;
+            Debug.Log(i);
+        }
+
+        if(i == 1)
+        {
+            ChangeInputMap(playerActionMap);
+        }
+        else if(i == 2)
+        {
+            ChangeInputMap(menuActionMap);
+        }
+        else if(i == 3)
+        {
+            ChangeInputMap(miniGameActionMap);
+        }
+    }   
 }
