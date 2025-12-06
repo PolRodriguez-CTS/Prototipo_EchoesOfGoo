@@ -16,7 +16,7 @@ public class Player2 : MonoBehaviour
     private Vector2 _lookInput;
     private InputAction _dashAction;
 
-    [SerializeField] private float _movementSpeed = 5;
+    [SerializeField] private float _movementSpeed = 15;
     [SerializeField] private float _jumpHeight = 2;
     [SerializeField] private float _smoothTime = 0.2f;
     private float _turnSmoothVelocity;
@@ -28,7 +28,7 @@ public class Player2 : MonoBehaviour
     private bool isDashing = false;
 
     //Gravedad
-    [SerializeField] private float _gravity = -10f;
+    [SerializeField] private float _gravity = -15f;
     [SerializeField] private Vector3 _playerGravity;
 
     //Ground Sensor
@@ -39,7 +39,7 @@ public class Player2 : MonoBehaviour
     private Transform _mainCamera;
 
     //Libertinaje puro y duro
-    public float _speedChangeRate = 10;
+    public float _speedChangeRate = 20;
     public float speed;
     public float _animationSpeed;
     public bool isSprinting = false;
@@ -93,6 +93,8 @@ public class Player2 : MonoBehaviour
 
     void Movement()
     {
+        if(isDashing) return;
+
         Vector3 direction = new Vector3(_moveInput.x, 0, _moveInput.y);
 
         float targetSpeed = _movementSpeed;
@@ -104,13 +106,9 @@ public class Player2 : MonoBehaviour
 
         float currentSpeed = new Vector3(_controller.velocity.x, 0, _controller.velocity.z).magnitude;
 
-        float speedOffset = 0.1f;
-
-        if(currentSpeed < targetSpeed - speedOffset || currentSpeed > targetSpeed + speedOffset)
+        if(currentSpeed < targetSpeed || currentSpeed > targetSpeed)
         {
-            speed = Mathf.Lerp(currentSpeed, targetSpeed * direction.magnitude, _speedChangeRate * Time.deltaTime);
-
-            speed = Mathf.Round(speed * 1000f) / 1000f;
+            speed = Mathf.MoveTowards(speed, targetSpeed * direction.magnitude, _speedChangeRate * Time.deltaTime);
         }
         else
         {
@@ -132,6 +130,7 @@ public class Player2 : MonoBehaviour
             float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _smoothTime);
 
             transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
+            _lastMoveDirection = (Quaternion.Euler(0, targetAngle, 0) * Vector3.forward).normalized;
         }
 
         Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;

@@ -1018,6 +1018,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Cheats",
+            "id": "c304b668-d798-4ff7-9e30-387402cb3f78",
+            "actions": [
+                {
+                    "name": "ChangeActionMap",
+                    "type": "Button",
+                    "id": "b1936fa5-2514-4aa5-9f73-5e793a9c5ff9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ec4c1024-0415-4cf1-827e-04094db8bc10",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChangeActionMap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [
