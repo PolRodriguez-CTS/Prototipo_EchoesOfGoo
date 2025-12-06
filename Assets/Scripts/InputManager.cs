@@ -64,19 +64,6 @@ public class InputManager : MonoBehaviour
         Debug.Log("Start --> el ActionMap Actual es:" + currentActionMap.name);
     }
 
-    //Cambio de Action maps
-    /*
-    void ChangeInputMap(InputActionMap newActionMap)
-    {
-        if(currentActionMap != newActionMap)
-        {
-            inputAsset.FindActionMap(currentActionMap.name).Disable();
-        }
-
-        inputAsset.FindActionMap(newActionMap.name).Enable();
-    }
-    */
-
     public void ChangeInputMap(InputActionMap newActionMap)
     {
         if(currentActionMap == newActionMap)

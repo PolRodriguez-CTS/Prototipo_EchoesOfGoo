@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.VisualScripting;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEditor.Experimental.GraphView;
 
 public class PlayerController : MonoBehaviour
 {
@@ -100,44 +101,29 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(Dash());
         }
 
+        //Pa cambiar
+        /*
         if(_clickAction.WasPressedThisFrame())
         {
             InputManager.Instance.ChangeInputMap(InputManager.Instance.menuActionMap);
         }
-
+        */
     }
 
     void Movement()
     {
-        //Direccion, pilla input en X e Y, en movimiento del personaje se traduce al movimiento en X y Z, ejes horizontales
         Vector3 direction = new Vector3(_moveInput.x, 0, _moveInput.y);
+        
 
-        //Velocidad
-        float targetSpeed = _movementSpeed;
-
-        float inputDir = direction.magnitude;
-
-        if (direction != Vector3.zero)
+        if(direction != Vector3.zero)
         {
-            targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + _mainCamera.eulerAngles.y;
+            float targetAngle = Mathf.Atan2(direction.x, direction.z)*Mathf.Rad2Deg + _mainCamera.eulerAngles.y;
+
             
-            float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _smoothTime);
-            transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
         }
-        else
-        {
-            float _smoothTimeQuick = 0.05f;
-            float quickSmoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _smoothTimeQuick);
-            transform.rotation = Quaternion.Euler(0, quickSmoothAngle, 0);
-        }
-
-        Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
-        if (inputDir > 0.1f)
-        {
-            _lastMoveDirection = moveDirection.normalized;
-        }
-
-        _controller.Move(moveDirection.normalized * _movementSpeed * Time.deltaTime + _playerGravity * Time.deltaTime);
+        Vector3 characterMovement = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
+        
+        _controller.Move(characterMovement * _movementSpeed * Time.deltaTime);
     }
 
     void Jump()
