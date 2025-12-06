@@ -12,11 +12,11 @@ public class InputManager : MonoBehaviour
     public InputActionAsset inputAsset;
 
     //ActionMaps que usaremos, almacenarlos en variables nos puede ayudar a cambiar entre ellos
-    private InputActionMap playerActionMap;
-    private InputActionMap menuActionMap;
-    private InputActionMap miniGameActionMap;
+    public InputActionMap playerActionMap;
+    public InputActionMap menuActionMap;
+    public InputActionMap miniGameActionMap;
 
-    private InputActionMap currentActionMap;
+    public InputActionMap currentActionMap;
     
     void Awake()
     {
@@ -58,16 +58,36 @@ public class InputManager : MonoBehaviour
 
     void Start()
     {
+        //provisional para tener algun action map asignado desde el principio
+
+        currentActionMap = playerActionMap;
+        Debug.Log("Start --> el ActionMap Actual es:" + currentActionMap.name);
     }
 
     //Cambio de Action maps
-    void ChangeInputMap(InputActionMap actionMap)
+    /*
+    void ChangeInputMap(InputActionMap newActionMap)
     {
-        if(currentActionMap != actionMap)
+        if(currentActionMap != newActionMap)
         {
             inputAsset.FindActionMap(currentActionMap.name).Disable();
         }
 
-        inputAsset.FindActionMap(actionMap.name).Enable();
+        inputAsset.FindActionMap(newActionMap.name).Enable();
     }
+    */
+
+    public void ChangeInputMap(InputActionMap newActionMap)
+    {
+        if(currentActionMap == newActionMap)
+        {
+            return;
+        }
+            
+        currentActionMap.Disable();
+        currentActionMap = newActionMap;
+        currentActionMap.Enable();
+        
+        Debug.Log(newActionMap.name);
+    }    
 }

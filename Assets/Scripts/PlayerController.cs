@@ -16,9 +16,11 @@ public class PlayerController : MonoBehaviour
     private InputAction _moveAction;
     private Vector2 _moveInput;
     private InputAction _jumpAction;
-    private InputAction _lookAction;
-    private Vector2 _lookInput;
+    //private InputAction _lookAction;
+    //private Vector2 _lookInput;
     private InputAction _dashAction;
+
+    private InputAction _clickAction;
 
     [SerializeField] private float _movementSpeed = 5;
     [SerializeField] private float _jumpHeight = 2;
@@ -63,8 +65,12 @@ public class PlayerController : MonoBehaviour
 
         _moveAction = InputSystem.actions["Move"];
         _jumpAction = InputSystem.actions["Jump"];
-        _lookAction = InputSystem.actions["Look"];
+        //_lookAction = InputSystem.actions["Look"];
         _dashAction = InputSystem.actions["Sprint"];
+
+        //--
+        _clickAction = InputSystem.actions["Attack"];
+        //--
 
         _mainCamera = Camera.main.transform;
     }
@@ -78,7 +84,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         _moveInput = _moveAction.ReadValue<Vector2>();
-        _lookInput = _lookAction.ReadValue<Vector2>();
+        //_lookInput = _lookAction.ReadValue<Vector2>();
 
         Gravity();
 
@@ -92,6 +98,11 @@ public class PlayerController : MonoBehaviour
         if(_dashAction.WasPressedThisFrame() && _moveInput != Vector2.zero)
         {
             StartCoroutine(Dash());
+        }
+
+        if(_clickAction.WasPressedThisFrame())
+        {
+            InputManager.Instance.ChangeInputMap(InputManager.Instance.menuActionMap);
         }
 
     }

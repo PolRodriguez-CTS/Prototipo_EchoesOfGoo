@@ -148,7 +148,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ce8ce6fab85ad444a1ddf7b83a48e42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _inputAsset: {fileID: 0}
+  inputAsset: {fileID: 0}
+  playerActionMap:
+    m_Name: 
+    m_Id: 
+    m_Asset: {fileID: 0}
+    m_Actions: []
+    m_Bindings: []
+  menuActionMap:
+    m_Name: 
+    m_Id: 
+    m_Asset: {fileID: 0}
+    m_Actions: []
+    m_Bindings: []
+  miniGameActionMap:
+    m_Name: 
+    m_Id: 
+    m_Asset: {fileID: 0}
+    m_Actions: []
+    m_Bindings: []
+  currentActionMap:
+    m_Name: 
+    m_Id: 
+    m_Asset: {fileID: 0}
+    m_Actions: []
+    m_Bindings: []
 --- !u!4 &48906409
 Transform:
   m_ObjectHideFlags: 0
@@ -419,6 +443,95 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 527718807}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &542992969
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 180205291326833463, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2.0543165
+      objectReference: {fileID: 0}
+    - target: {fileID: 180205291326833463, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.10713328
+      objectReference: {fileID: 0}
+    - target: {fileID: 180205291326833463, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -5.144699
+      objectReference: {fileID: 0}
+    - target: {fileID: 180205291326833463, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 180205291326833463, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 180205291326833463, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 180205291326833463, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 180205291326833463, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 180205291326833463, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 180205291326833463, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718116748175749280, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: menuActionMap.m_Id
+      value: 48e29194-f8ef-47f2-b0de-1c83c315a770
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718116748175749280, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: menuActionMap.m_Name
+      value: Menu
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718116748175749280, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: playerActionMap.m_Id
+      value: 1cb42de8-8e40-479d-aedd-d5a1ee4f8432
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718116748175749280, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: currentActionMap.m_Id
+      value: a3f88558-b9a7-48fc-9e2e-197722409880
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718116748175749280, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: miniGameActionMap.m_Id
+      value: 0efe5469-19db-45b6-9bf9-66a8b23c2bf5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718116748175749280, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: playerActionMap.m_Name
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718116748175749280, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: currentActionMap.m_Name
+      value: Current
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718116748175749280, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: miniGameActionMap.m_Name
+      value: Mini Game
+      objectReference: {fileID: 0}
+    - target: {fileID: 6938005247249149511, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
+      propertyPath: m_Name
+      value: InputManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b67a0b27c46ae0a40a98787ee34d49bd, type: 3}
 --- !u!1 &662621151
 GameObject:
   m_ObjectHideFlags: 0
@@ -2176,3 +2289,4 @@ SceneRoots:
   - {fileID: 1007900341}
   - {fileID: 1834588443}
   - {fileID: 48906409}
+  - {fileID: 542992969}
